@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35931.197 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrimeInMyArea", "CrimeInMyArea\CrimeInMyArea.csproj", "{343775C6-C2B5-4650-A152-280BD01C8162}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared_Code", "Shared_Code\Shared_Code.shproj", "{FF52F593-4B49-4B9B-83E1-41D67B944989}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{343775C6-C2B5-4650-A152-280BD01C8162}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{343775C6-C2B5-4650-A152-280BD01C8162}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{343775C6-C2B5-4650-A152-280BD01C8162}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{343775C6-C2B5-4650-A152-280BD01C8162}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {98F74C87-4D3D-4771-8368-9DAAE708ADC0}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Shared_Code\Shared_Code.projitems*{ff52f593-4b49-4b9b-83e1-41d67b944989}*SharedItemsImports = 13
+	EndGlobalSection
+EndGlobal
