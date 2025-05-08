@@ -9,5 +9,7 @@
     <Import_RootNamespace>Shared_Code</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Models.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\CrimeDataService.cs" />
   </ItemGroup>
 </Project>
