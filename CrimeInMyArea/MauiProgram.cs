@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Shared_Code.Services;
 
 namespace CrimeInMyArea
 {
@@ -16,8 +17,13 @@ namespace CrimeInMyArea
                 });
 
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
+
+            builder.Services.AddSingleton<HttpClient>();
+            builder.Services.AddSingleton<CrimeDataService>();
+            builder.Services.AddSingleton<IGeolocation>(Geolocation.Default);
+            builder.Services.AddTransient<MainPage>();
 
             return builder.Build();
         }
