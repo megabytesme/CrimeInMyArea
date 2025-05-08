@@ -64,4 +64,6 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
 	</ItemGroup>
 
+	<Import Project="..\Shared_Code\Shared_Code.projitems" Label="Shared" />
+
 </Project>
