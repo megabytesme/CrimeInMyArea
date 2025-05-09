@@ -1,52 +1,109 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:CrimeInMyArea"
              x:Class="CrimeInMyArea.MainPage"
-             Title="Crime In My Area">
+             Title="Crime Data">
 
-    <Grid RowDefinitions="Auto, Auto, *, Auto">
-        <VerticalStackLayout Grid.Row="0" Spacing="10" Padding="30,20,30,10">
+    <Grid RowDefinitions="Auto, *, Auto" Padding="10">
+
+        <VerticalStackLayout Grid.Row="0" Spacing="10" Padding="20,10,20,10">
             <Image
                 Source="dotnet_bot.png"
                 SemanticProperties.Description="Cute dot net bot waving hi to you!"
-                HeightRequest="100"
+                HeightRequest="80"
                 HorizontalOptions="Center" />
-
             <Label
                 Text="Crime In My Area"
                 SemanticProperties.HeadingLevel="Level1"
-                FontSize="28"
-                HorizontalOptions="Center" />
+                FontSize="26"
+                HorizontalOptions="Center"
+                FontAttributes="Bold"/>
         </VerticalStackLayout>
 
-        <Label Grid.Row="1"
-            x:Name="CrimeSummaryLabel"
-            Text="Fetching crime data..."
-            SemanticProperties.HeadingLevel="Level2"
-            FontSize="16"
-            HorizontalOptions="CenterAndExpand"
-            Padding="30,0,30,10"
-            LineBreakMode="WordWrap"/>
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="15">
+                <Frame Padding="15" CornerRadius="8" BorderColor="LightGray" HasShadow="True">
+                    <VerticalStackLayout Spacing="8">
+                        <ActivityIndicator x:Name="LoadingIndicator" IsRunning="False" IsVisible="False" HorizontalOptions="Center"/>
+                        <Label x:Name="OverallSummaryLabel" Text="Fetching data..." FontSize="16" FontAttributes="Bold" HorizontalTextAlignment="Center" LineBreakMode="WordWrap"/>
+                        <BoxView HeightRequest="1" Color="LightGray" Margin="0,5"/>
+                        <Label x:Name="AreaNameLabel" Text="Area: -" FontSize="14"/>
+                        <Label x:Name="DataMonthLabel" Text="Data for: -" FontSize="14"/>
+                        <Label x:Name="TotalCrimesLabel" Text="Total Incidents: -" FontSize="14"/>
+                    </VerticalStackLayout>
+                </Frame>
 
-        <ScrollView Grid.Row="2" Padding="10,0,10,0" x:Name="LogScrollView">
-            <CollectionView x:Name="LogCollectionView" Margin="5">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Frame Padding="5" Margin="0,0,0,5" BorderColor="LightGray" CornerRadius="5">
-                            <Label Text="{Binding .}" FontSize="12" LineBreakMode="WordWrap"/>
-                        </Frame>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+                <Frame Padding="15" CornerRadius="8" BorderColor="LightGray" HasShadow="True" 
+                       x:Name="CategoriesSectionFrame" IsVisible="False">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Crime Categories" FontSize="18" FontAttributes="Bold"/>
+                        <CollectionView x:Name="CrimeCategoriesCollectionView" HeightRequest="250">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="local:CrimeCategoryCount">
+                                    <Grid ColumnDefinitions="*,Auto" Padding="5,3">
+                                        <Label Grid.Column="0" Text="{Binding CategoryName}" VerticalOptions="Center"/>
+                                        <Label Grid.Column="1" Text="{Binding Count}" FontAttributes="Bold" VerticalOptions="Center"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                        <Label x:Name="NoCategoriesLabel" Text="No category breakdown available." IsVisible="False" HorizontalTextAlignment="Center" TextColor="Gray"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <Frame Padding="15" CornerRadius="8" BorderColor="LightGray" HasShadow="True" 
+                       x:Name="IncidentsSectionFrame" IsVisible="False">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="Sample Incidents (Up to 10)" FontSize="18" FontAttributes="Bold"/>
+                        <CollectionView x:Name="RecentIncidentsCollectionView" HeightRequest="350">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="local:CrimeIncidentDisplay">
+                                    <Frame Padding="10" Margin="0,0,0,8" BorderColor="Gainsboro" CornerRadius="5" BackgroundColor="WhiteSmoke">
+                                        <VerticalStackLayout Spacing="4">
+                                            <Label Text="{Binding Category}" FontAttributes="Bold" FontSize="15"/>
+                                            <Label FontSize="13">
+                                                <Label.FormattedText>
+                                                    <FormattedString>
+                                                        <Span Text="Street: " TextColor="DarkGray"/>
+                                                        <Span Text="{Binding StreetInfo}"/>
+                                                    </FormattedString>
+                                                </Label.FormattedText>
+                                            </Label>
+                                            <Label FontSize="13">
+                                                <Label.FormattedText>
+                                                    <FormattedString>
+                                                        <Span Text="Outcome: " TextColor="DarkGray"/>
+                                                        <Span Text="{Binding OutcomeInfo}"/>
+                                                    </FormattedString>
+                                                </Label.FormattedText>
+                                            </Label>
+                                            <Label FontSize="11" TextColor="SlateGray">
+                                                <Label.FormattedText>
+                                                    <FormattedString>
+                                                        <Span Text="Month of Incident: "/>
+                                                        <Span Text="{Binding Month}"/>
+                                                    </FormattedString>
+                                                </Label.FormattedText>
+                                            </Label>
+                                        </VerticalStackLayout>
+                                    </Frame>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                        <Label x:Name="NoIncidentsLabel" Text="No sample incidents to display." IsVisible="False" HorizontalTextAlignment="Center" TextColor="Gray"/>
+                    </VerticalStackLayout>
+                </Frame>
+            </VerticalStackLayout>
         </ScrollView>
 
-        <Button Grid.Row="3"
+        <Button Grid.Row="2"
             x:Name="RefreshButton"
             Text="Refresh Crime Data"
             SemanticProperties.Hint="Refreshes the crime data for the current location"
             Clicked="OnRefreshButtonClicked"
-            HorizontalOptions="Center"
-            Margin="0,10,0,20" />
-
+            HorizontalOptions="FillAndExpand" 
+            Margin="0,15,0,10" 
+            CornerRadius="8"/>
     </Grid>
 </ContentPage>

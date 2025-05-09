@@ -12,4 +12,10 @@
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
 
+    <ShellContent
+        Title="Application Logs"
+        ContentTemplate="{DataTemplate local:LogPage}"
+        Route="LogPage" />
+
 </Shell>
+    

@@ -24,6 +24,7 @@ namespace CrimeInMyArea
             builder.Services.AddSingleton<CrimeDataService>();
             builder.Services.AddSingleton<IGeolocation>(Geolocation.Default);
             builder.Services.AddTransient<MainPage>();
+            builder.Services.AddTransient<LogPage>();
 
             return builder.Build();
         }

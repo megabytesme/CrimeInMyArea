@@ -11,5 +11,6 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Models\Models.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\CrimeDataService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\LogService.cs" />
   </ItemGroup>
 </Project>
