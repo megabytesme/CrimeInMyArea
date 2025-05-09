@@ -1,51 +1,132 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-This is the minimum required version of the Apple Privacy Manifest for .NET MAUI apps.
-The contents below are needed because of APIs that are used in the .NET framework and .NET MAUI SDK.
-
-You are responsible for adding extra entries as needed for your application.
-
-More information: https://aka.ms/maui-privacy-manifest
--->
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict>
-    <key>NSPrivacyAccessedAPITypes</key>
-    <array>
-        <dict>
-            <key>NSPrivacyAccessedAPIType</key>
-            <string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
-            <key>NSPrivacyAccessedAPITypeReasons</key>
-            <array>
-                <string>C617.1</string>
-            </array>
-        </dict>
-        <dict>
-            <key>NSPrivacyAccessedAPIType</key>
-            <string>NSPrivacyAccessedAPICategorySystemBootTime</string>
-            <key>NSPrivacyAccessedAPITypeReasons</key>
-            <array>
-                <string>35F9.1</string>
-            </array>
-        </dict>
-        <dict>
-            <key>NSPrivacyAccessedAPIType</key>
-            <string>NSPrivacyAccessedAPICategoryDiskSpace</string>
-            <key>NSPrivacyAccessedAPITypeReasons</key>
-            <array>
-                <string>E174.1</string>
-            </array>
-        </dict>
-        <!--
-            The entry below is only needed when you're using the Preferences API in your app.
-        <dict>
-            <key>NSPrivacyAccessedAPIType</key>
-            <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
-            <key>NSPrivacyAccessedAPITypeReasons</key>
-            <array>
-                <string>CA92.1</string>
-            </array>
-        </dict> -->
-    </array>
-</dict>
+	<dict>
+		<key>NSPrivacyAccessedAPITypes</key>
+		<array>
+			<dict>
+				<key>NSPrivacyAccessedAPIType</key>
+				<string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+				<key>NSPrivacyAccessedAPITypeReasons</key>
+				<array>
+					<string>C617.1</string>
+				</array>
+			</dict>
+			<dict>
+				<key>NSPrivacyAccessedAPIType</key>
+				<string>NSPrivacyAccessedAPICategorySystemBootTime</string>
+				<key>NSPrivacyAccessedAPITypeReasons</key>
+				<array>
+					<string>35F9.1</string>
+				</array>
+			</dict>
+			<dict>
+				<key>NSPrivacyAccessedAPIType</key>
+				<string>NSPrivacyAccessedAPICategoryDiskSpace</string>
+				<key>NSPrivacyAccessedAPITypeReasons</key>
+				<array>
+					<string>E174.1</string>
+				</array>
+			</dict>
+			<dict>
+				<key>NSPrivacyAccessedAPIType</key>
+				<string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+				<key>NSPrivacyAccessedAPITypeReasons</key>
+				<array>
+					<string>CA92.1</string>
+				</array>
+			</dict>
+		</array>
+		<key>NSPrivacyCollectedDataTypes</key>
+		<array>
+			<dict>
+				<key>NSPrivacyCollectedDataTypeUserID</key>
+				<string>NSPrivacyCollectedDataTypeLocation</string>
+				<key>NSPrivacyCollectedDataTypeLinked</key>
+				<true />
+				<key>NSPrivacyCollectedDataTypeTracking</key>
+				<false />
+				<key>NSPrivacyCollectedDataTypePurposes</key>
+				<array>
+					<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+				</array>
+			</dict>
+			<dict>
+				<key>NSPrivacyCollectedDataTypeEmailAddress</key>
+				<string>NSPrivacyCollectedDataTypeLocation</string>
+				<key>NSPrivacyCollectedDataTypeLinked</key>
+				<true />
+				<key>NSPrivacyCollectedDataTypeTracking</key>
+				<false />
+				<key>NSPrivacyCollectedDataTypePurposes</key>
+				<array>
+					<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+				</array>
+			</dict>
+			<dict>
+				<key>NSPrivacyCollectedDataTypePhoneNumber</key>
+				<string>NSPrivacyCollectedDataTypeLocation</string>
+				<key>NSPrivacyCollectedDataTypeLinked</key>
+				<true />
+				<key>NSPrivacyCollectedDataTypeTracking</key>
+				<false />
+				<key>NSPrivacyCollectedDataTypePurposes</key>
+				<array>
+					<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+				</array>
+			</dict>
+
+			<dict>
+				<key>NSPrivacyCollectedDataType</key>
+				<string>NSPrivacyCollectedDataTypeOtherDiagnosticData</string>
+				<key>NSPrivacyCollectedDataTypeLinked</key>
+				<false />
+				<key>NSPrivacyCollectedDataTypeTracking</key>
+				<false />
+				<key>NSPrivacyCollectedDataTypePurposes</key>
+				<array>
+					<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+				</array>
+			</dict>
+			<dict>
+				<key>NSPrivacyCollectedDataType</key>
+				<string>NSPrivacyCollectedDataTypeCrashData</string>
+				<key>NSPrivacyCollectedDataTypeLinked</key>
+				<true />
+				<key>NSPrivacyCollectedDataTypeTracking</key>
+				<false />
+				<key>NSPrivacyCollectedDataTypePurposes</key>
+				<array>
+					<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+				</array>
+			</dict>
+
+			<dict>
+				<key>NSPrivacyCollectedDataType</key>
+				<string>NSPrivacyCollectedDataTypeCoarseLocation</string>
+				<key>NSPrivacyCollectedDataTypeLinked</key>
+				<true />
+				<key>NSPrivacyCollectedDataTypeTracking</key>
+				<true />
+				<key>NSPrivacyCollectedDataTypePurposes</key>
+				<array>
+					<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+				</array>
+			</dict>
+
+			<dict>
+				<key>NSPrivacyCollectedDataType</key>
+				<string>NSPrivacyCollectedDataTypePreciseLocation</string>
+				<key>NSPrivacyCollectedDataTypeLinked</key>
+				<true />
+				<key>NSPrivacyCollectedDataTypeTracking</key>
+				<true />
+				<key>NSPrivacyCollectedDataTypePurposes</key>
+				<array>
+					<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>
+				</array>
+			</dict>
+
+		</array>
+	</dict>
 </plist>
