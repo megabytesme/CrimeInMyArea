@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Shared_Code.Services;
+using Syncfusion.Maui.Toolkit.Hosting;
 
 namespace CrimeInMyArea
 {
@@ -10,6 +11,7 @@ namespace CrimeInMyArea
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+                .ConfigureSyncfusionToolkit()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");

@@ -72,4 +72,18 @@
         public string Latitude { get; set; }
         public string Longitude { get; set; }
     }
+
+    public class CrimeCategoryCount
+    {
+        public string? CategoryName { get; set; }
+        public int Count { get; set; }
+    }
+
+    public class CrimeIncidentDisplay
+    {
+        public string? Category { get; set; }
+        public string? StreetInfo { get; set; }
+        public string? OutcomeInfo { get; set; }
+        public string? Month { get; set; }
+    }
 }
