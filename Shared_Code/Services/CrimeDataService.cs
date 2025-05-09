@@ -36,12 +36,6 @@ namespace Shared_Code.Services
             _currentGranularity = NotificationGranularity.Neighbourhood;
         }
 
-        private void LogDebug(string message)
-        {
-            string logMessage = $"[CrimeDataService DEBUG] {DateTime.Now:HH:mm:ss.fff}: {message}";
-            System.Diagnostics.Debug.WriteLine(logMessage);
-        }
-
         public void Configure(
             NotificationGranularity granularity,
             double? forceLevelRadiusKm = null
@@ -59,29 +53,27 @@ namespace Shared_Code.Services
 
         private async Task<string> GetLatestAvailableCrimeMonthAsync(bool forceRefresh = false)
         {
-            LogDebug("Enter GetLatestAvailableCrimeMonthAsync");
+            LogService.AddLog("CDS: Enter GetLatestAvailableCrimeMonthAsync");
             if (
                 !forceRefresh
                 && !string.IsNullOrEmpty(_latestAvailableCrimeMonth)
                 && (DateTime.UtcNow - _lastCheckedCrimeMonthDate).TotalHours < 24
             )
             {
-                LogDebug("Returning cached crime month.");
+                LogService.AddLog("CDS: Returning cached crime month.");
                 return _latestAvailableCrimeMonth;
             }
 
             try
             {
                 string url = $"{BaseApiUrl}/crimes-street-dates";
-                LogDebug($"Fetching street dates from: {url}");
+                LogService.AddLog($"CDS: Fetching street dates from: {url}");
                 var response = await _httpClient.GetAsync(url);
-                LogDebug($"Street dates response status: {response.StatusCode}");
+                LogService.AddLog($"CDS: Street dates response status: {response.StatusCode}");
                 response.EnsureSuccessStatusCode();
-                LogDebug("Street dates - reading JSON...");
                 var availableDates = await response.Content.ReadFromJsonAsync<
                     List<AvailableDate>
                 >();
-                LogDebug("Street dates - JSON read.");
 
                 if (availableDates != null && availableDates.Any())
                 {
@@ -92,22 +84,26 @@ namespace Shared_Code.Services
                         .FirstOrDefault()
                         ?.Date;
                     _lastCheckedCrimeMonthDate = DateTime.UtcNow;
-                    LogDebug($"Latest crime month: {_latestAvailableCrimeMonth}");
+                    LogService.AddLog($"CDS: Latest crime month: {_latestAvailableCrimeMonth}");
                     return _latestAvailableCrimeMonth;
                 }
-                LogDebug("No available dates found or list was empty.");
+                LogService.AddLog("CDS: No available dates found or list was empty.");
             }
             catch (HttpRequestException ex)
             {
-                LogDebug(
-                    $"HttpRequestException in GetLatestAvailableCrimeMonthAsync: {ex.Message}. Status Code: {ex.StatusCode}"
+                LogService.AddLog(
+                    $"CDS: HttpRequestException in GetLatestAvailableCrimeMonthAsync: {ex.Message}. Status Code: {ex.StatusCode}"
                 );
             }
             catch (Exception ex)
             {
-                LogDebug($"Exception in GetLatestAvailableCrimeMonthAsync: {ex.ToString()}");
+                LogService.AddLog(
+                    $"CDS: Exception in GetLatestAvailableCrimeMonthAsync: {ex.Message}"
+                );
             }
-            LogDebug("Exit GetLatestAvailableCrimeMonthAsync (possibly with old/null month)");
+            LogService.AddLog(
+                "CDS: Exit GetLatestAvailableCrimeMonthAsync (possibly with old/null month)"
+            );
             return _latestAvailableCrimeMonth;
         }
 
@@ -116,39 +112,39 @@ namespace Shared_Code.Services
             double longitude
         )
         {
-            LogDebug("Enter GetForceAndNeighbourhoodAsync");
+            LogService.AddLog("CDS: Enter GetForceAndNeighbourhoodAsync");
             try
             {
                 string url = $"{BaseApiUrl}/locate-neighbourhood?q={latitude:F5},{longitude:F5}";
-                LogDebug($"Fetching force/neighbourhood from: {url}");
+                LogService.AddLog($"CDS: Fetching force/neighbourhood from: {url}");
                 var response = await _httpClient.GetAsync(url);
-                LogDebug($"Force/neighbourhood response status: {response.StatusCode}");
+                LogService.AddLog(
+                    $"CDS: Force/neighbourhood response status: {response.StatusCode}"
+                );
                 response.EnsureSuccessStatusCode();
-                LogDebug("Force/neighbourhood - reading JSON...");
                 var locationInfo =
                     await response.Content.ReadFromJsonAsync<NeighbourhoodLocation>();
-                LogDebug("Force/neighbourhood - JSON read.");
 
                 if (locationInfo != null)
                 {
-                    LogDebug(
-                        $"Found Force: {locationInfo.Force}, Neighbourhood: {locationInfo.Neighbourhood}"
+                    LogService.AddLog(
+                        $"CDS: Found Force: {locationInfo.Force}, Neighbourhood: {locationInfo.Neighbourhood}"
                     );
                     return (locationInfo.Force, locationInfo.Neighbourhood);
                 }
-                LogDebug("Location info was null after parsing.");
+                LogService.AddLog("CDS: Location info was null after parsing.");
             }
             catch (HttpRequestException ex)
             {
-                LogDebug(
-                    $"HttpRequestException in GetForceAndNeighbourhoodAsync: {ex.Message}. Status Code: {ex.StatusCode}"
+                LogService.AddLog(
+                    $"CDS: HttpRequestException in GetForceAndNeighbourhoodAsync: {ex.Message}. Status Code: {ex.StatusCode}"
                 );
             }
             catch (Exception ex)
             {
-                LogDebug($"Exception in GetForceAndNeighbourhoodAsync: {ex.ToString()}");
+                LogService.AddLog($"CDS: Exception in GetForceAndNeighbourhoodAsync: {ex.Message}");
             }
-            LogDebug("Exit GetForceAndNeighbourhoodAsync (possibly null)");
+            LogService.AddLog("CDS: Exit GetForceAndNeighbourhoodAsync (possibly null)");
             return null;
         }
 
@@ -158,52 +154,52 @@ namespace Shared_Code.Services
             bool forceRefresh = false
         )
         {
-            LogDebug("Enter GetNeighbourhoodBoundaryAsync");
+            LogService.AddLog("CDS: Enter GetNeighbourhoodBoundaryAsync");
             if (
                 !forceRefresh
                 && _currentNeighbourhoodBoundaryCache != null
                 && _cachedBoundaryForNeighbourhoodId == neighbourhoodId
             )
             {
-                LogDebug("Returning cached neighbourhood boundary.");
+                LogService.AddLog("CDS: Returning cached neighbourhood boundary.");
                 return _currentNeighbourhoodBoundaryCache;
             }
 
             try
             {
                 string url = $"{BaseApiUrl}/{forceId}/{neighbourhoodId}/boundary";
-                LogDebug($"Fetching neighbourhood boundary from: {url}");
+                LogService.AddLog($"CDS: Fetching neighbourhood boundary from: {url}");
                 var response = await _httpClient.GetAsync(url);
-                LogDebug($"Neighbourhood boundary response status: {response.StatusCode}");
+                LogService.AddLog(
+                    $"CDS: Neighbourhood boundary response status: {response.StatusCode}"
+                );
                 response.EnsureSuccessStatusCode();
-                LogDebug("Neighbourhood boundary - reading JSON...");
                 var boundaryPoints = await response.Content.ReadFromJsonAsync<
                     List<BoundaryPoint>
                 >();
-                LogDebug("Neighbourhood boundary - JSON read.");
 
                 if (boundaryPoints != null)
                 {
                     _currentNeighbourhoodBoundaryCache = boundaryPoints;
                     _cachedBoundaryForNeighbourhoodId = neighbourhoodId;
-                    LogDebug($"Fetched {boundaryPoints.Count} boundary points.");
+                    LogService.AddLog($"CDS: Fetched {boundaryPoints.Count} boundary points.");
                     return boundaryPoints;
                 }
-                LogDebug("Boundary points list was null after parsing.");
+                LogService.AddLog("CDS: Boundary points list was null after parsing.");
             }
             catch (HttpRequestException ex)
             {
-                LogDebug(
-                    $"HttpRequestException in GetNeighbourhoodBoundaryAsync: {ex.Message}. Status Code: {ex.StatusCode}"
+                LogService.AddLog(
+                    $"CDS: HttpRequestException in GetNeighbourhoodBoundaryAsync: {ex.Message}. Status Code: {ex.StatusCode}"
                 );
             }
             catch (Exception ex)
             {
-                LogDebug($"Exception in GetNeighbourhoodBoundaryAsync: {ex.ToString()}");
+                LogService.AddLog($"CDS: Exception in GetNeighbourhoodBoundaryAsync: {ex.Message}");
             }
             _currentNeighbourhoodBoundaryCache = null;
             _cachedBoundaryForNeighbourhoodId = null;
-            LogDebug("Exit GetNeighbourhoodBoundaryAsync (possibly null boundary)");
+            LogService.AddLog("CDS: Exit GetNeighbourhoodBoundaryAsync (possibly null boundary)");
             return null;
         }
 
@@ -223,24 +219,19 @@ namespace Shared_Code.Services
         )
         {
             const double earthRadiusMeters = 6371e3;
-
             double lat1Radians = previousLatitude * Math.PI / 180.0;
             double lat2Radians = currentLatitude * Math.PI / 180.0;
             double deltaLatitudeRadians = (currentLatitude - previousLatitude) * Math.PI / 180.0;
             double deltaLongitudeRadians = (currentLongitude - previousLongitude) * Math.PI / 180.0;
-
             double haversine_a =
                 Math.Sin(deltaLatitudeRadians / 2.0) * Math.Sin(deltaLatitudeRadians / 2.0)
                 + Math.Cos(lat1Radians)
                     * Math.Cos(lat2Radians)
                     * Math.Sin(deltaLongitudeRadians / 2.0)
                     * Math.Sin(deltaLongitudeRadians / 2.0);
-
             double haversine_c =
                 2.0 * Math.Atan2(Math.Sqrt(haversine_a), Math.Sqrt(1.0 - haversine_a));
-
             double distanceInMeters = earthRadiusMeters * haversine_c;
-
             return distanceInMeters > thresholdMeters;
         }
 
@@ -250,17 +241,17 @@ namespace Shared_Code.Services
             bool forceDataRefresh = false
         )
         {
-            LogDebug("Enter GetCrimeDataAsync");
+            LogService.AddLog("CDS: Enter GetCrimeDataAsync");
             bool needsDataFetch = forceDataRefresh;
             string newLatestCrimeMonth = await GetLatestAvailableCrimeMonthAsync(forceDataRefresh);
-            LogDebug(
-                $"Initial needsDataFetch: {needsDataFetch}, LatestCrimeMonth: {newLatestCrimeMonth}"
+            LogService.AddLog(
+                $"CDS: Initial needsDataFetch: {needsDataFetch}, LatestCrimeMonth: {newLatestCrimeMonth}"
             );
 
             if (string.IsNullOrEmpty(newLatestCrimeMonth))
             {
-                LogDebug(
-                    "newLatestCrimeMonth is null or empty. Returning potentially cached/default report."
+                LogService.AddLog(
+                    "CDS: newLatestCrimeMonth is null or empty. Returning potentially cached/default report."
                 );
                 return _lastCrimeReport
                     ?? new CrimeReport
@@ -275,19 +266,21 @@ namespace Shared_Code.Services
             )
             {
                 needsDataFetch = true;
-                LogDebug("Crime month updated. Setting needsDataFetch to true.");
+                LogService.AddLog("CDS: Crime month updated. Setting needsDataFetch to true.");
             }
 
             var locationIds = await GetForceAndNeighbourhoodAsync(
                 currentLatitude,
                 currentLongitude
             );
-            LogDebug(
-                $"LocationIDs: Force={locationIds?.ForceId}, Neighbourhood={locationIds?.NeighbourhoodId}"
+            LogService.AddLog(
+                $"CDS: LocationIDs: Force={locationIds?.ForceId}, Neighbourhood={locationIds?.NeighbourhoodId}"
             );
             if (locationIds == null)
             {
-                LogDebug("locationIds is null. Returning potentially cached/default report.");
+                LogService.AddLog(
+                    "CDS: locationIds is null. Returning potentially cached/default report."
+                );
                 return _lastCrimeReport
                     ?? new CrimeReport
                     {
@@ -334,7 +327,7 @@ namespace Shared_Code.Services
                                 currentLongitude,
                                 _lastFetchedLatForForceRadius,
                                 _lastFetchedLngForForceRadius,
-                                _forceLevelRadiusKm * 50
+                                _forceLevelRadiusKm * 500
                             )
                         )
                         {
@@ -342,14 +335,16 @@ namespace Shared_Code.Services
                         }
                         break;
                 }
-                LogDebug(
-                    $"After movement check. Granularity: {_currentGranularity}, needsDataFetch: {needsDataFetch}"
+                LogService.AddLog(
+                    $"CDS: After movement check. Granularity: {_currentGranularity}, needsDataFetch: {needsDataFetch}"
                 );
             }
 
             if (!needsDataFetch && _lastCrimeReport != null)
             {
-                LogDebug("Returning cached _lastCrimeReport as no data fetch needed.");
+                LogService.AddLog(
+                    "CDS: Returning cached _lastCrimeReport as no data fetch needed."
+                );
                 return _lastCrimeReport;
             }
 
@@ -364,8 +359,8 @@ namespace Shared_Code.Services
                     CultureInfo.InvariantCulture
                 ),
             };
-            LogDebug(
-                $"Fetching new data for Granularity: {_currentGranularity}, Force: {_currentForceId}, Neighbourhood: {_currentNeighbourhoodId}, Month: {newLatestCrimeMonth}"
+            LogService.AddLog(
+                $"CDS: Fetching new data for Granularity: {_currentGranularity}, Force: {_currentForceId}, Neighbourhood: {_currentNeighbourhoodId}, Month: {newLatestCrimeMonth}"
             );
 
             List<CrimeIncident> incidents = null;
@@ -388,7 +383,9 @@ namespace Shared_Code.Services
                         _lastFetchedLngForStreet = currentLongitude;
                         _lastFetchedForceIdForData = _currentForceId;
                         requestUrlForLogging = requestUrlSegment;
-                        LogDebug($"Making HTTP GET request to: {requestUrlForLogging}");
+                        LogService.AddLog(
+                            $"CDS: Making HTTP GET request to: {requestUrlForLogging}"
+                        );
                         response = await _httpClient.GetAsync(requestUrlForLogging);
                         break;
 
@@ -406,25 +403,25 @@ namespace Shared_Code.Services
                                 $"Neighbourhood: {_currentNeighbourhoodId} (Force: {_currentForceId})";
                             _lastFetchedNeighbourhoodIdForData = _currentNeighbourhoodId;
                             _lastFetchedForceIdForData = _currentForceId;
-
-                            LogDebug(
-                                $"Built requestUrl for Neighbourhood (POST base): {requestUrlSegment}. Poly length: {polyForPost.Length}"
+                            LogService.AddLog(
+                                $"CDS: Built requestUrl for Neighbourhood (POST base): {requestUrlSegment}. Poly length: {polyForPost.Length}"
                             );
                             requestUrlForLogging = $"{requestUrlSegment} with poly data";
-
                             var parameters = new Dictionary<string, string>
                             {
                                 { "date", newLatestCrimeMonth },
                                 { "poly", polyForPost },
                             };
                             var content = new FormUrlEncodedContent(parameters);
-                            LogDebug($"Making HTTP POST request to: {requestUrlSegment}");
+                            LogService.AddLog(
+                                $"CDS: Making HTTP POST request to: {requestUrlSegment}"
+                            );
                             response = await _httpClient.PostAsync(requestUrlSegment, content);
                         }
                         else
                         {
-                            LogDebug(
-                                "Neighbourhood boundary was null or empty. Cannot fetch crimes for neighbourhood."
+                            LogService.AddLog(
+                                "CDS: Neighbourhood boundary was null or empty. Cannot fetch crimes for neighbourhood."
                             );
                             report.Summary = "Could not fetch neighbourhood boundary.";
                             _lastCrimeReport = report;
@@ -433,46 +430,96 @@ namespace Shared_Code.Services
                         break;
 
                     case NotificationGranularity.Force:
-                        requestUrlSegment =
-                            $"{BaseApiUrl}/crimes-street/all-crime?date={newLatestCrimeMonth}&lat={currentLatitude:F5}&lng={currentLongitude:F5}";
-                        report.AreaIdentifier =
-                            $"Force: {_currentForceId} (Radius around: {currentLatitude:F3}, {currentLongitude:F3})";
-                        _lastFetchedForceIdForData = _currentForceId;
-                        _lastFetchedLatForForceRadius = currentLatitude;
-                        _lastFetchedLngForForceRadius = currentLongitude;
-                        requestUrlForLogging = requestUrlSegment;
-                        LogDebug($"Making HTTP GET request to: {requestUrlForLogging}");
-                        response = await _httpClient.GetAsync(requestUrlForLogging);
+                        var circlePoints = new List<BoundaryPoint>();
+                        for (int i = 0; i < 36; i++)
+                        {
+                            double angle = i * 10 * (Math.PI / 180);
+                            double dx =
+                                _forceLevelRadiusKm
+                                * Math.Cos(angle)
+                                / (111.32 * Math.Cos(currentLatitude * Math.PI / 180));
+                            double dy = _forceLevelRadiusKm * Math.Sin(angle) / 111.32;
+                            circlePoints.Add(
+                                new BoundaryPoint
+                                {
+                                    Latitude = (currentLatitude + dy).ToString(
+                                        "F5",
+                                        CultureInfo.InvariantCulture
+                                    ),
+                                    Longitude = (currentLongitude + dx).ToString(
+                                        "F5",
+                                        CultureInfo.InvariantCulture
+                                    ),
+                                }
+                            );
+                        }
+                        if (circlePoints.Any())
+                        {
+                            polyForPost = FormatPolygon(circlePoints);
+                            requestUrlSegment = $"{BaseApiUrl}/crimes-street/all-crime";
+                            report.AreaIdentifier =
+                                $"Approx. {_forceLevelRadiusKm:F1}km radius around {currentLatitude:F3}, {currentLongitude:F3} (Force: {_currentForceId})";
+                            _lastFetchedForceIdForData = _currentForceId;
+                            _lastFetchedLatForForceRadius = currentLatitude;
+                            _lastFetchedLngForForceRadius = currentLongitude;
+                            LogService.AddLog(
+                                $"CDS: Built requestUrl for Force (POST base): {requestUrlSegment}. Poly length: {polyForPost.Length}"
+                            );
+                            requestUrlForLogging = $"{requestUrlSegment} with poly data";
+                            var parameters = new Dictionary<string, string>
+                            {
+                                { "date", newLatestCrimeMonth },
+                                { "poly", polyForPost },
+                            };
+                            var content = new FormUrlEncodedContent(parameters);
+                            LogService.AddLog(
+                                $"CDS: Making HTTP POST request to: {requestUrlSegment}"
+                            );
+                            response = await _httpClient.PostAsync(requestUrlSegment, content);
+                        }
+                        else
+                        {
+                            LogService.AddLog(
+                                "CDS: Could not generate circle polygon for Force level. This should not happen."
+                            );
+                            report.Summary = "Internal error generating search area for force.";
+                            _lastCrimeReport = report;
+                            return report;
+                        }
                         break;
                 }
 
                 if (response != null)
                 {
-                    LogDebug(
-                        $"HTTP response status: {response.StatusCode} from {requestUrlForLogging}"
+                    LogService.AddLog(
+                        $"CDS: HTTP response status: {response.StatusCode} from {requestUrlForLogging}"
                     );
                     if (!response.IsSuccessStatusCode)
                     {
-                        LogDebug(
-                            $"API Error Status: {response.StatusCode} for URL: {response.RequestMessage?.RequestUri}"
+                        LogService.AddLog(
+                            $"CDS: API Error Status: {response.StatusCode} for URL: {response.RequestMessage?.RequestUri}"
                         );
+                        string errorContent = await response.Content.ReadAsStringAsync();
+                        LogService.AddLog($"CDS: API Error Content: {errorContent}");
                     }
                     response.EnsureSuccessStatusCode();
-                    LogDebug($"Reading JSON content from {requestUrlForLogging}...");
+                    LogService.AddLog($"CDS: Reading JSON content from {requestUrlForLogging}...");
                     incidents = await response.Content.ReadFromJsonAsync<List<CrimeIncident>>();
-                    LogDebug(
-                        $"JSON content read from {requestUrlForLogging}. Incidents count: {incidents?.Count}"
+                    LogService.AddLog(
+                        $"CDS: JSON content read from {requestUrlForLogging}. Incidents count: {incidents?.Count}"
                     );
                 }
                 else if (string.IsNullOrEmpty(requestUrlSegment) && polyForPost == null)
                 {
-                    LogDebug("Request URL or POST data was not prepared, skipping HTTP call.");
+                    LogService.AddLog(
+                        "CDS: Request URL or POST data was not prepared, skipping HTTP call."
+                    );
                 }
             }
             catch (HttpRequestException ex)
             {
-                LogDebug(
-                    $"HttpRequestException in GetCrimeDataAsync for {requestUrlForLogging}: {ex.Message}. Status Code: {ex.StatusCode}"
+                LogService.AddLog(
+                    $"CDS: HttpRequestException in GetCrimeDataAsync for {requestUrlForLogging}: {ex.Message}. Status Code: {ex.StatusCode}"
                 );
                 report.Summary = $"API Error: {ex.Message.Split('.')[0]}.";
                 if (ex.StatusCode.HasValue)
@@ -482,15 +529,15 @@ namespace Shared_Code.Services
             }
             catch (JsonException ex)
             {
-                LogDebug(
-                    $"JsonException in GetCrimeDataAsync for {requestUrlForLogging}: {ex.Message}"
+                LogService.AddLog(
+                    $"CDS: JsonException in GetCrimeDataAsync for {requestUrlForLogging}: {ex.Message}"
                 );
                 report.Summary = "Error processing crime data.";
             }
             catch (Exception ex)
             {
-                LogDebug(
-                    $"Generic Exception of type {ex.GetType().FullName} in GetCrimeDataAsync for {requestUrlForLogging}: {ex.ToString()}"
+                LogService.AddLog(
+                    $"CDS: Generic Exception of type {ex.GetType().FullName} in GetCrimeDataAsync for {requestUrlForLogging}: {ex.ToString()}"
                 );
                 report.Summary = $"An unexpected error ({ex.GetType().Name}) occurred.";
             }
@@ -513,14 +560,14 @@ namespace Shared_Code.Services
             else if (string.IsNullOrEmpty(report.Summary) || report.Summary == "No data available.")
             {
                 report.Summary =
-                    $"No crime data found for {report.AreaIdentifier} for {report.DataMonth:MMMM yyyy}.";
+                    $"No crime data found for {report.AreaIdentifier} for {report.DataMonth:MMMM yyyy}. Check logs for API issues.";
             }
-            LogDebug(
-                $"Finalizing report. Incidents found: {incidents != null}. Summary: {report.Summary}"
+            LogService.AddLog(
+                $"CDS: Finalizing report. Incidents found: {incidents != null}. Summary: {report.Summary}"
             );
 
             _lastCrimeReport = report;
-            LogDebug("Exit GetCrimeDataAsync");
+            LogService.AddLog("CDS: Exit GetCrimeDataAsync");
             return report;
         }
     }
