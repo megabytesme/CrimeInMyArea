@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using Shared_Code.Models;
 using Shared_Code.Services;
 using Syncfusion.Maui.Toolkit.Charts;
+using Location = Microsoft.Maui.Devices.Sensors.Location;
 
 namespace CrimeInMyArea
 {
@@ -32,6 +33,7 @@ namespace CrimeInMyArea
         private readonly CrimeDataService _crimeDataService;
         private readonly IGeolocation _geolocation;
         private readonly Random _random = new Random();
+        private Location? _currentUserLocation;
 
         private bool _isChartLoading;
         public bool IsChartLoading
@@ -152,6 +154,7 @@ namespace CrimeInMyArea
 
         private void ResetUIDefaults(string initialMessage = "Awaiting data...")
         {
+            _currentUserLocation = null;
             OverallSummaryText = initialMessage;
             AreaNameText = "Area: -";
             DataMonthText = "Data for: -";
@@ -204,16 +207,19 @@ namespace CrimeInMyArea
                     GeolocationAccuracy.Medium,
                     TimeSpan.FromSeconds(10)
                 );
-                var location = await _geolocation.GetLocationAsync(request, CancellationToken.None);
+                _currentUserLocation = await _geolocation.GetLocationAsync(
+                    request,
+                    CancellationToken.None
+                );
 
-                if (location != null)
+                if (_currentUserLocation != null)
                 {
                     OverallSummaryText =
-                        $"Location: Lat={location.Latitude:F3}, Lon={location.Longitude:F3}. Fetching crimes...";
+                        $"Location: Lat={_currentUserLocation.Latitude:F3}, Lon={_currentUserLocation.Longitude:F3}. Fetching crimes...";
                     LogService.AddLog(OverallSummaryText);
                     CrimeReport report = await _crimeDataService.GetCrimeDataAsync(
-                        location.Latitude,
-                        location.Longitude,
+                        _currentUserLocation.Latitude,
+                        _currentUserLocation.Longitude,
                         forceRefresh
                     );
 
@@ -269,21 +275,48 @@ namespace CrimeInMyArea
                             IsNoCategoriesTextVisible = !categoryGroups.Any();
                             IsNoChartDataVisible = !CrimeCategoryChartData.Any();
 
-                            var incidentsToShow = report
-                                .Incidents.Take(10)
-                                .Select(i => new CrimeIncidentDisplay
+                            var incidentsWithDistance = report
+                                .Incidents.Select(i =>
                                 {
-                                    Category = i.Category?.Replace('-', ' ')?.Trim() ?? "N/A",
-                                    StreetInfo = $"{i.Location?.Street?.Name ?? "Location N/A"}",
-                                    OutcomeInfo =
-                                        $"{i.OutcomeStatus?.Category ?? "Outcome Pending"}",
-                                    Month = i.Month ?? "N/A",
+                                    double distance = -1;
+                                    if (
+                                        _currentUserLocation != null
+                                        && double.TryParse(
+                                            i.Location?.Latitude,
+                                            out double incidentLat
+                                        )
+                                        && double.TryParse(
+                                            i.Location?.Longitude,
+                                            out double incidentLon
+                                        )
+                                    )
+                                    {
+                                        distance = Location.CalculateDistance(
+                                            _currentUserLocation,
+                                            incidentLat,
+                                            incidentLon,
+                                            DistanceUnits.Kilometers
+                                        );
+                                    }
+                                    return new CrimeIncidentDisplay
+                                    {
+                                        Category = i.Category?.Replace('-', ' ')?.Trim() ?? "N/A",
+                                        StreetInfo =
+                                            $"{i.Location?.Street?.Name ?? "Location N/A"}",
+                                        OutcomeInfo =
+                                            $"{i.OutcomeStatus?.Category ?? "Outcome Pending"}",
+                                        Month = i.Month ?? "N/A",
+                                        DistanceKm = distance,
+                                    };
                                 })
+                                .OrderBy(i => i.DistanceKm < 0 ? double.MaxValue : i.DistanceKm)
+                                .Take(10)
                                 .ToList();
+
                             DisplayableIncidents.Clear();
-                            incidentsToShow.ForEach(DisplayableIncidents.Add);
+                            incidentsWithDistance.ForEach(DisplayableIncidents.Add);
                             IsIncidentsSectionVisible = true;
-                            IsNoIncidentsTextVisible = !incidentsToShow.Any();
+                            IsNoIncidentsTextVisible = !incidentsWithDistance.Any();
                         }
                         else
                         {

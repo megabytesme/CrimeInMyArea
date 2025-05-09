@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:CrimeInMyArea"
-             xmlns:local1="clr-namespace:Shared_Code.Models"
+             xmlns:models="clr-namespace:Shared_Code.Models"
              xmlns:chart="clr-namespace:Syncfusion.Maui.Toolkit.Charts;assembly=Syncfusion.Maui.Toolkit"
              xmlns:shimmer="clr-namespace:Syncfusion.Maui.Toolkit.Shimmer;assembly=Syncfusion.Maui.Toolkit"
              x:Class="CrimeInMyArea.MainPage"
@@ -35,15 +35,10 @@
                     </Border.Shadow>
                     <VerticalStackLayout Spacing="10">
                         <Label Text="Crime Categories Breakdown" TextColor="{AppThemeBinding Light=Black, Dark=White}" FontSize="18" FontAttributes="Bold"/>
-                        <shimmer:SfShimmer
-                            HeightRequest="250"
-                            BackgroundColor="Transparent" 
-                            VerticalOptions="FillAndExpand"
-                            IsActive ="{Binding IsChartLoading}">
+                        <shimmer:SfShimmer HeightRequest="250" BackgroundColor="Transparent" VerticalOptions="FillAndExpand" IsActive ="{Binding IsChartLoading}">
                             <shimmer:SfShimmer.CustomView>
                                 <Grid>
-                                    <BoxView CornerRadius="12" VerticalOptions="FillAndExpand" 
-                                             BackgroundColor="{AppThemeBinding Light=#66EEEEEE, Dark=#66404040}"/>
+                                    <BoxView CornerRadius="12" VerticalOptions="FillAndExpand" BackgroundColor="{AppThemeBinding Light=#66EEEEEE, Dark=#66404040}"/>
                                 </Grid>
                             </shimmer:SfShimmer.CustomView>
                             <shimmer:SfShimmer.Content>
@@ -51,26 +46,11 @@
                                     <chart:SfCircularChart.Legend>
                                         <chart:ChartLegend Placement="Right" ToggleSeriesVisibility="True">
                                             <chart:ChartLegend.LabelStyle>
-                                                <chart:ChartLegendLabelStyle
-                                                    TextColor="{AppThemeBinding Light=Black, Dark=White}"
-                                                    Margin="5"
-                                                    FontSize="14" />
+                                                <chart:ChartLegendLabelStyle TextColor="{AppThemeBinding Light=Black, Dark=White}" Margin="5" FontSize="14" />
                                             </chart:ChartLegend.LabelStyle>
                                         </chart:ChartLegend>
                                     </chart:SfCircularChart.Legend>
-                                    <chart:RadialBarSeries
-                                        ItemsSource="{Binding CrimeCategoryChartData}"
-                                        PaletteBrushes="{Binding CrimeCategoryColors}"
-                                        XBindingPath="CategoryName"
-                                        YBindingPath="Count"
-                                        ShowDataLabels="True"
-                                        DataLabelSettings="{Binding RadialDataLabelSettings}"
-                                        EnableTooltip="True"
-                                        TrackFill="{AppThemeBinding Light=#33CCCCCC, Dark=#33505050}"
-                                        CapStyle="BothCurve"
-                                        MaximumValue="100"
-                                        Radius="0.9"
-                                        InnerRadius="0.4"/>
+                                    <chart:RadialBarSeries ItemsSource="{Binding CrimeCategoryChartData}" PaletteBrushes="{Binding CrimeCategoryColors}" XBindingPath="CategoryName" YBindingPath="Count" ShowDataLabels="True" DataLabelSettings="{Binding RadialDataLabelSettings}" EnableTooltip="True" TrackFill="{AppThemeBinding Light=#33CCCCCC, Dark=#33505050}" CapStyle="BothCurve" MaximumValue="100" Radius="0.9" InnerRadius="0.4"/>
                                 </chart:SfCircularChart>
                             </shimmer:SfShimmer.Content>
                         </shimmer:SfShimmer>
@@ -78,7 +58,7 @@
                         <Label Text="Category Counts:" Margin="0,10,0,0" TextColor="{AppThemeBinding Light=Black, Dark=White}" IsVisible="{Binding Source={x:Reference CrimeCategoriesCollectionView}, Path=IsVisible}"/>
                         <CollectionView x:Name="CrimeCategoriesCollectionView" ItemsSource="{Binding CrimeCategories}" HeightRequest="200" Margin="0,5,0,0">
                             <CollectionView.ItemTemplate>
-                                <DataTemplate x:DataType="local1:CrimeCategoryCount">
+                                <DataTemplate x:DataType="models:CrimeCategoryCount">
                                     <Grid ColumnDefinitions="*,Auto" Padding="5,3">
                                         <Label Grid.Column="0" Text="{Binding CategoryName}" TextColor="{AppThemeBinding Light=DarkSlateGray, Dark=LightGray}" VerticalOptions="Center"/>
                                         <Label Grid.Column="1" Text="{Binding Count}" FontAttributes="Bold" TextColor="{AppThemeBinding Light=DarkSlateGray, Dark=LightGray}" VerticalOptions="Center"/>
@@ -97,10 +77,10 @@
                         <Shadow Brush="{AppThemeBinding Light=Gray, Dark=Black}" Offset="3,3" Radius="8" Opacity="0.2"/>
                     </Border.Shadow>
                     <VerticalStackLayout Spacing="8">
-                        <Label Text="Sample Incidents (Up to 10)" TextColor="{AppThemeBinding Light=Black, Dark=White}" FontSize="18" FontAttributes="Bold"/>
+                        <Label Text="Nearest Incidents (Up to 10)" TextColor="{AppThemeBinding Light=Black, Dark=White}" FontSize="18" FontAttributes="Bold"/>
                         <CollectionView x:Name="RecentIncidentsCollectionView" ItemsSource="{Binding DisplayableIncidents}">
                             <CollectionView.ItemTemplate>
-                                <DataTemplate x:DataType="local1:CrimeIncidentDisplay">
+                                <DataTemplate x:DataType="models:CrimeIncidentDisplay">
                                     <Border Stroke="{AppThemeBinding Light=Gainsboro, Dark=#454545}"
                                             StrokeThickness="1" Padding="10" Margin="0,0,0,8"
                                             BackgroundColor="{AppThemeBinding Light=#80FAFAFA, Dark=#803A3A3A}"
@@ -120,6 +100,14 @@
                                                     <FormattedString>
                                                         <Span Text="Outcome: " />
                                                         <Span Text="{Binding OutcomeInfo}"/>
+                                                    </FormattedString>
+                                                </Label.FormattedText>
+                                            </Label>
+                                            <Label FontSize="12" FontAttributes="Italic" TextColor="{AppThemeBinding Light=SteelBlue, Dark=LightSkyBlue}">
+                                                <Label.FormattedText>
+                                                    <FormattedString>
+                                                        <Span Text="Approx. "/>
+                                                        <Span Text="{Binding DistanceDisplay}"/>
                                                     </FormattedString>
                                                 </Label.FormattedText>
                                             </Label>

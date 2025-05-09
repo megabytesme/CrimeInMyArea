@@ -85,5 +85,7 @@
         public string? StreetInfo { get; set; }
         public string? OutcomeInfo { get; set; }
         public string? Month { get; set; }
+        public double DistanceKm { get; set; }
+        public string DistanceDisplay => DistanceKm < 0 ? "N/A" : (DistanceKm < 0.1 ? "< 100 m" : $"{DistanceKm:F1} km away");
     }
 }
